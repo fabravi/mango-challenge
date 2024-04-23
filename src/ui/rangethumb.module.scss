@@ -1,0 +1,18 @@
+$matrix-size: $thumb-size-hover / $thumb-size;
+$top: $thumb-size-hover / 2 - $thumb-size / 2;
+
+.thumb {
+  position: absolute;
+  width: $thumb-size;
+  height: $thumb-size;
+  border-radius: 50%;
+  background-color: $thumb-color;
+  cursor: pointer;
+  transition: transform 0.1s;
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.6);
+  top: $top;
+
+  &:hover {
+    transform: matrix($matrix-size, 0, 0, $matrix-size, 0, 0);
+  }
+}

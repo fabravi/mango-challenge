@@ -1,9 +1,22 @@
 import getRangeData from "@/lib/getRangeData";
+import Range from "@/ui/Range";
 
 export const dynamic = "force-dynamic";
 
 export default async function Exercise1Page() {
   const data = await getRangeData("/exercise-1");
 
-  return <pre>{JSON.stringify(data, null, 2)}</pre>;
+  return (
+    <>
+      <div style={{ width: "100%" }}>
+        <Range
+          min={data.min}
+          max={data.max}
+          value={data}
+          onChange={(value) => console.log("change", value)}
+        />
+      </div>
+      <pre>{JSON.stringify(data, null, 2)}</pre>
+    </>
+  );
 }

@@ -12,7 +12,6 @@ $matrix-origin: - strip-units($thumb-size) / 2;
   border-radius: 50%;
   background-color: $thumb-color;
   pointer-events: none;
-  transition: transform 0.1s;
   box-shadow: 0 0 2px rgba(0, 0, 0, 0.6);
   top: 50%;
   transform-origin: 50% 50%;

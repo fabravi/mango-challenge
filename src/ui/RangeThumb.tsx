@@ -1,18 +1,34 @@
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import styles from "./rangethumb.module.scss";
 
-export default function RangeThumb({ left, isActive }: any) {
+interface RangeThumbProps {
+  left: number;
+  isActive: boolean;
+  setActive: (value: boolean) => void;
+}
+
+export default function RangeThumb({
+  left,
+  isActive,
+  setActive,
+}: RangeThumbProps) {
   const ref = useRef<HTMLDivElement>(null);
 
-  ref.current?.addEventListener("mouseover", () => {
-    console.log("mouseover");
-  });
+  useEffect(() => {
+    ref.current?.addEventListener("focus", (event) => {
+      setActive(true);
+    });
+
+    ref.current?.addEventListener("blur", () => {
+      setActive(false);
+    });
+  }, [setActive]);
 
   return (
     <span
       ref={ref}
       tabIndex={0}
-      role="thumb"
+      role="slider-thumb"
       className={`${styles.thumb} ${isActive ? styles.hover : ""}`}
       style={{ left: `${left}%` }}
     ></span>

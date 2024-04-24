@@ -1,10 +1,9 @@
 export default class Range {
-  min: number;
-  max: number;
-  value: { min: number; max: number };
-  steps: number[];
-  range: number;
-  activeThumb: "min" | "max" | null = null;
+  private _min: number;
+  private _max: number;
+  private _value: { min: number; max: number };
+  private _steps: number[];
+  private _activeThumb: "min" | "max" | null = null;
 
   constructor(
     min: number,
@@ -12,19 +11,18 @@ export default class Range {
     value: { min: number; max: number },
     steps: number[],
   ) {
-    this.min = min;
-    this.max = max;
-    this.value = value;
-    this.steps = steps.length ? [min, ...steps, max] : [];
-    this.range = max - min;
+    this._min = min;
+    this._max = max;
+    this._value = value;
+    this._steps = steps.length ? [min, ...steps, max] : [];
   }
 
   setActiveThumb(thumb: "min" | "max" | null) {
-    this.activeThumb = thumb;
+    this._activeThumb = thumb;
   }
 
   getCloserThumb(x: number) {
-    const { min, max } = this.value;
+    const { min, max } = this._value;
     const distanceToMin = Math.abs(x - min);
     const distanceToMax = Math.abs(x - max);
     if (distanceToMin === distanceToMax) {
@@ -39,37 +37,47 @@ export default class Range {
   }
 
   getCloserStep(x: number) {
-    const distances = this.steps.map((step) => Math.abs(x - step));
+    const distances = this._steps.map((step) => Math.abs(x - step));
     const minDistance = Math.min(...distances);
-    return this.steps[distances.indexOf(minDistance)];
+    return this._steps[distances.indexOf(minDistance)];
   }
 
   setThumbValue(x: number) {
-    if (!this.activeThumb) return;
-    const thumb = this.activeThumb;
-    if (x < this.min) {
-      this.value[thumb] = this.min;
+    if (!this._activeThumb) return;
+    const thumb = this._activeThumb;
+    if (x < this._min) {
+      this._value[thumb] = this._min;
       return;
     }
-    if (x > this.max) {
-      this.value[thumb] = this.max;
+    if (x > this._max) {
+      this._value[thumb] = this._max;
       return;
     }
-    if (thumb === "min" && x > this.value.max) {
-      console.log("min > max");
-      this.value[thumb] = this.value.max;
+    if (thumb === "min" && x > this._value.max) {
+      this._value[thumb] = this._value.max;
       return;
     }
-    if (thumb === "max" && x < this.value.min) {
-      console.log("max > min");
-      this.value[thumb] = this.value.min;
+    if (thumb === "max" && x < this._value.min) {
+      this._value[thumb] = this._value.min;
       return;
     }
-    if (this.steps.length) {
+    if (this._steps.length) {
       const step = this.getCloserStep(x);
-      this.value[thumb] = step;
+      this._value[thumb] = step;
       return;
     }
-    this.value[thumb] = x;
+    this._value[thumb] = x;
+  }
+
+  get activeThumb() {
+    return this._activeThumb;
+  }
+
+  set activeThumb(value) {
+    this._activeThumb = value;
+  }
+
+  get value() {
+    return this._value;
   }
 }

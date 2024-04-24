@@ -1,12 +1,17 @@
 "use client";
 
-import { use, useEffect, useRef, useState } from "react";
-import RangeMark from "./RangeMark";
-import RangeRail from "./RangeRail";
-import RangeThumb from "./RangeThumb";
-import RangeTrack from "./RangeTrack";
-import styles from "./range.module.scss";
+import { useEffect, useRef, useState } from "react";
+
 import RangeClass from "@/domain/Range";
+
+import RangeMark from "@/ui/RangeMark";
+import RangeRail from "@/ui/RangeRail";
+import RangeThumb from "@/ui/RangeThumb";
+import RangeTrack from "@/ui/RangeTrack";
+import RangeInput from "@/ui/RangeInput";
+
+import styles from "./range.module.scss";
+import { flushSync } from "react-dom";
 
 interface Value {
   min: number;
@@ -17,7 +22,7 @@ interface RangeProps {
   min: number;
   max: number;
   value: Value;
-  marks: number[];
+  marks?: number[];
   onChange?: (value: Value) => void;
 }
 
@@ -30,8 +35,6 @@ export default function Range({
 }: RangeProps) {
   const range = useRef<HTMLDivElement>(null);
   const [value, setValue] = useState<Value>(initialValue);
-  const [rangePositions, setRangePositions] = useState<any>();
-  const isDraggingRef = useRef(false);
   const [activeThumb, setActiveThumb] = useState<string | null>(null);
 
   const rangeRef = useRef<RangeClass>(
@@ -58,6 +61,28 @@ export default function Range({
     return ((value - min) / (max - min)) * 100;
   };
 
+  const addTransitionStyles = () => {
+    if (!range.current) return;
+    const { current } = range;
+    current
+      .querySelector("[role='slider-track']")
+      ?.classList.add("transitions-active");
+    current
+      .querySelectorAll("[role='slider-thumb']")
+      .forEach((item) => item?.classList.add("transitions-active"));
+  };
+
+  const removeTransitionStyles = () => {
+    if (!range.current) return;
+    const { current } = range;
+    current
+      .querySelector("[role='slider-track']")
+      ?.classList.remove("transitions-active");
+    current
+      .querySelectorAll("[role='slider-thumb']")
+      .forEach((item) => item?.classList.remove("transitions-active"));
+  };
+
   useEffect(() => {
     if (!range.current) return;
 
@@ -66,46 +91,94 @@ export default function Range({
     const left = current.getBoundingClientRect().left;
     const width = current.getBoundingClientRect().width;
 
-    current.addEventListener("mousedown", (event) => {
-      const val = transformPositionToValue(left, width, event.clientX);
-      rangeRef.setCloserThumbActive(val);
-      rangeRef.setThumbValue(val);
-      console.log("mousedown", rangeRef.activeThumb, rangeRef.value);
-      setValue({ ...rangeRef.value });
+    const handlers = {
+      range: {
+        mousedown: (event: MouseEvent) => {
+          const val = transformPositionToValue(left, width, event.clientX);
+          rangeRef.setCloserThumbActive(val);
+          rangeRef.setThumbValue(val);
+          setValue({ ...rangeRef.value });
+          addTransitionStyles();
+          event.preventDefault();
+          document.body.style.cursor = "grabbing";
+          current.style.cursor = "grabbing";
+        },
+        mousemove: (event: MouseEvent) => {
+          const val = transformPositionToValue(left, width, event.clientX);
+          const activeThumb = rangeRef.getCloserThumb(val);
+          setActiveThumb(activeThumb);
+          removeTransitionStyles();
+        },
+        mouseleave: (event: MouseEvent) => {
+          setActiveThumb(null);
+        },
+      },
+      document: {
+        mousemove: (event: MouseEvent) => {
+          const val = transformPositionToValue(left, width, event.clientX);
+          rangeRef.setThumbValue(val);
+          if (rangeRef.activeThumb === null) return;
+          setValue({ ...rangeRef.value });
+        },
+        mouseup: (event: MouseEvent) => {
+          rangeRef.activeThumb = null;
+          document.body.style.cursor = "auto";
+          current.style.cursor = "pointer";
+        },
+        keydown: (event: KeyboardEvent) => {
+          const activeThumb = rangeRef.activeThumb;
+          console.log("keydown", rangeRef.value, rangeRef.activeThumb);
+          if (activeThumb === null) return;
+          if (event.key === "ArrowUp" || event.key === "ArrowRight") {
+            console.log("setThumbValue", rangeRef.value);
+            rangeRef.setThumbValue(rangeRef.value[activeThumb] + 1);
+            setValue({ ...rangeRef.value });
+          }
+          if (event.key === "ArrowDown" || event.key === "ArrowLeft") {
+            console.log("setThumbValue", rangeRef.value);
+            rangeRef.setThumbValue(rangeRef.value[activeThumb] - 1);
+            setValue({ ...rangeRef.value });
+          }
+        },
+      },
+    };
 
-      event.preventDefault();
-      document.body.style.cursor = "grabbing";
-      current.style.cursor = "grabbing";
-    });
+    for (const [key, value] of Object.entries(handlers.range)) {
+      console.log("addEventListener", key);
+      current.addEventListener(key, value as EventListener);
+    }
 
-    current.addEventListener("mousemove", (event) => {
-      const val = transformPositionToValue(left, width, event.clientX);
-      const activeThumb = rangeRef.getCloserThumb(val);
-      setActiveThumb(activeThumb);
-    });
+    for (const [key, value] of Object.entries(handlers.document)) {
+      document.addEventListener(key, value as EventListener);
+    }
 
-    current.addEventListener("mouseleave", (event) => {
-      setActiveThumb(null);
-    });
+    return () => {
+      for (const [key, value] of Object.entries(handlers.range)) {
+        current.removeEventListener(key, value as EventListener);
+      }
 
-    document.addEventListener("mousemove", (event) => {
-      const val = transformPositionToValue(left, width, event.clientX);
-      rangeRef.setThumbValue(val);
-      console.log("mousedown", rangeRef.activeThumb, rangeRef.value);
-      setValue({ ...rangeRef.value });
-    });
-
-    document.addEventListener("mouseup", (event) => {
-      rangeRef.activeThumb = null;
-      document.body.style.cursor = "auto";
-      current.style.cursor = "pointer";
-    });
-
-    setRangePositions({ left, width });
+      for (const [key, value] of Object.entries(handlers.document)) {
+        document.removeEventListener(key, value as EventListener);
+      }
+    };
   }, []);
 
+  const setActive = (activeThumb: "min" | "max" | null) => {
+    rangeRef.setActiveThumb(activeThumb);
+  };
+
+  const readOnly = marks.length > 0;
+
   return (
-    <>
+    <div className={styles.container}>
+      <RangeInput
+        name="min"
+        min={min}
+        max={value.max}
+        value={value.min}
+        onChange={(min: number) => setValue((prev) => ({ ...prev, min }))}
+        readOnly={readOnly}
+      />
       <div className={styles.range} ref={range}>
         <RangeRail />
         <RangeTrack
@@ -118,10 +191,12 @@ export default function Range({
         <RangeThumb
           left={transformValueToPosition(value.min)}
           isActive={activeThumb === "min"}
+          setActive={(state) => setActive(state ? "min" : null)}
         />
         <RangeThumb
           left={transformValueToPosition(value.max)}
           isActive={activeThumb === "max"}
+          setActive={(state) => setActive(state ? "max" : null)}
         />
         {marks.map((mark) => (
           <RangeMark
@@ -131,8 +206,14 @@ export default function Range({
           />
         ))}
       </div>
-      <pre>{JSON.stringify({ min, max, value }, null, 2)}</pre>
-      <pre>{JSON.stringify(rangePositions, null, 2)}</pre>
-    </>
+      <RangeInput
+        name="max"
+        min={value.min}
+        max={max}
+        value={value.max}
+        onChange={(max: number) => setValue((prev) => ({ ...prev, max }))}
+        readOnly={readOnly}
+      />
+    </div>
   );
 }

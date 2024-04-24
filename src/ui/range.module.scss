@@ -4,3 +4,8 @@
   min-height: $root-height;
   cursor: pointer;
 }
+
+.container {
+  display: flex;
+  gap: 8px;
+}

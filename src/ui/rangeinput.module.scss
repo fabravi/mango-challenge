@@ -1,0 +1,30 @@
+.input {
+  width: 60px;
+  border: none;
+  text-align: right;
+  font-family: inherit;
+  &:hover {
+    cursor: text;
+    text-decoration: underline;
+  }
+  &:read-only:hover {
+    text-decoration: none;
+    cursor: auto;
+  }
+
+  &:read-only:focus-visible {
+    outline: 0;
+  }
+}
+
+.fieldset {
+  display: flex;
+  border: none;
+  font-size: 14px;
+  line-height: 28px;
+  gap: 6px;
+}
+
+.error {
+  color: red;
+}

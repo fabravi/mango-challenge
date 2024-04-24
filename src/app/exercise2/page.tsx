@@ -19,7 +19,6 @@ export default async function Exercise2Page() {
           }}
         />
       </div>
-      ;<pre>{JSON.stringify(data, null, 2)}</pre>;
     </>
   );
 }

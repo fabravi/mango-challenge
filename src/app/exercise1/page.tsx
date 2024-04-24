@@ -9,12 +9,7 @@ export default async function Exercise1Page() {
   return (
     <>
       <div style={{ width: "100%" }}>
-        <Range
-          min={data.min}
-          max={data.max}
-          value={data}
-          onChange={(value) => console.log("change", value)}
-        />
+        <Range min={data.min} max={data.max} value={data} />
       </div>
       <pre>{JSON.stringify(data, null, 2)}</pre>
     </>

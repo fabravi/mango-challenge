@@ -8,5 +8,6 @@ $top: $thumb-size-hover / 2 - ($mark-size / 2);
   border-radius: 50%;
   cursor: pointer;
   left: 50%;
-  top: $top;
+  top: 50%;
+  transform: translate(-50%, -50%);
 }

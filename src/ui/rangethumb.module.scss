@@ -1,5 +1,9 @@
+@function strip-units($number) {
+  @return $number / ($number * 0 + 1);
+}
+
 $matrix-size: $thumb-size-hover / $thumb-size;
-$top: $thumb-size-hover / 2 - $thumb-size / 2;
+$matrix-origin: - strip-units($thumb-size) / 2;
 
 .thumb {
   position: absolute;
@@ -10,9 +14,18 @@ $top: $thumb-size-hover / 2 - $thumb-size / 2;
   cursor: pointer;
   transition: transform 0.1s;
   box-shadow: 0 0 2px rgba(0, 0, 0, 0.6);
-  top: $top;
+  top: 50%;
+  transform-origin: 50% 50%;
+  transform: translate(-50%, -50%);
 
   &:hover {
-    transform: matrix($matrix-size, 0, 0, $matrix-size, 0, 0);
+    transform: matrix(
+      $matrix-size,
+      0,
+      0,
+      $matrix-size,
+      $matrix-origin,
+      $matrix-origin
+    );
   }
 }

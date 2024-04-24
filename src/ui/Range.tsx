@@ -30,8 +30,9 @@ export default function Range({
   const [rangePositions, setRangePositions] = useState<any>();
   //   const [isDragging, setIsDragging] = useState(false);
   const isDraggingRef = useRef(false);
-  const activeThumb = useRef<string>();
+  const activeThumbRef = useRef<string>();
   const valueRef = useRef({ ...value }).current;
+  const [activeThumb, setActiveThumb] = useState<string | null>(null);
 
   const distance = (x1, x2) => {
     return Math.abs(x1 - x2);
@@ -91,11 +92,11 @@ export default function Range({
       current.style.cursor = "grabbing";
 
       console.log("minKey", minKey);
-      activeThumb.current = minKey;
+      activeThumbRef.current = minKey;
 
       const pos = Math.max(Math.min(percentageLeft, 100), 0);
 
-      if (activeThumb.current === "min") {
+      if (activeThumbRef.current === "min") {
         if (pos >= valueRef.max) {
           console.log("returning");
           return;
@@ -106,21 +107,43 @@ export default function Range({
         }
       }
       console.log(event.clientX, event);
-      valueRef[activeThumb.current as string] = pos;
+      valueRef[activeThumbRef.current as string] = pos;
       setValue((value) => ({
         ...value,
-        [activeThumb.current as string]: pos,
+        [activeThumbRef.current as string]: pos,
       }));
+    });
+
+    current.addEventListener("mousemove", (event) => {
+      console.log("mousemove", isDraggingRef.current, activeThumbRef.current);
+      const relativePosition = event.clientX - left;
+      const percentageLeft = (relativePosition / width) * 100;
+      event.preventDefault();
+      if (!isDraggingRef.current) {
+        const minKey = minDistancePointKey(percentageLeft, {
+          min: valueRef.min,
+          max: valueRef.max,
+        });
+
+        setActiveThumb(minKey as string);
+        return;
+      }
+    });
+
+    current.addEventListener("mouseleave", (event) => {
+      console.log("mouseleave", isDraggingRef.current);
+      setActiveThumb(null);
     });
 
     document.addEventListener("mousemove", (event) => {
       if (!isDraggingRef.current) return;
-      event.preventDefault();
-
       const relativePosition = event.clientX - left;
       const percentageLeft = (relativePosition / width) * 100;
+
+      event.preventDefault();
+
       const pos = Math.max(Math.min(percentageLeft, 100), 0);
-      if (activeThumb.current === "min") {
+      if (activeThumbRef.current === "min") {
         console.log("check crossing", pos, value.max, value.min);
         if (pos >= valueRef.max) {
           console.log("returning");
@@ -141,10 +164,10 @@ export default function Range({
         }
       }
       console.log(event.clientX, event);
-      valueRef[activeThumb.current as string] = pos;
+      valueRef[activeThumbRef.current as string] = pos;
       setValue((value) => ({
         ...value,
-        [activeThumb.current as string]: pos,
+        [activeThumbRef.current as string]: pos,
       }));
     });
 
@@ -154,8 +177,8 @@ export default function Range({
 
       setValue((value) => ({
         ...value,
-        [activeThumb.current as string]:
-          valueRef[activeThumb.current as string],
+        [activeThumbRef.current as string]:
+          valueRef[activeThumbRef.current as string],
       }));
 
       isDraggingRef.current = false;
@@ -169,8 +192,16 @@ export default function Range({
       <div className={styles.range} ref={range}>
         <RangeRail />
         <RangeTrack left={value.min} width={value.max - value.min} />
-        <RangeThumb left={value.min} isDragging={isDraggingRef.current} />
-        <RangeThumb left={value.max} isDragging={isDraggingRef.current} />
+        <RangeThumb
+          left={value.min}
+          isDragging={isDraggingRef.current}
+          isActive={activeThumb === "min"}
+        />
+        <RangeThumb
+          left={value.max}
+          isDragging={isDraggingRef.current}
+          isActive={activeThumb === "max"}
+        />
         <RangeMark />
       </div>
       <pre>{JSON.stringify({ min, max, value }, null, 2)}</pre>

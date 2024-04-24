@@ -1,5 +1,5 @@
 import styles from "./rangemark.module.scss";
 
-export default function RangeMark() {
-  return <span className={styles.mark}></span>;
+export default function RangeMark({ left }: any) {
+  return <span className={styles.mark} style={{ left: `${left}%` }}></span>;
 }

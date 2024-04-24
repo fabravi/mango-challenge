@@ -6,6 +6,7 @@ import RangeRail from "./RangeRail";
 import RangeThumb from "./RangeThumb";
 import RangeTrack from "./RangeTrack";
 import styles from "./range.module.scss";
+import RangeClass from "@/domain/Range";
 
 interface Value {
   min: number;
@@ -16,6 +17,7 @@ interface RangeProps {
   min: number;
   max: number;
   value: Value;
+  marks: number[];
   onChange?: (value: Value) => void;
 }
 
@@ -23,51 +25,37 @@ export default function Range({
   min,
   max,
   value: initialValue,
+  marks = [],
   onChange,
 }: RangeProps) {
   const range = useRef<HTMLDivElement>(null);
   const [value, setValue] = useState<Value>(initialValue);
   const [rangePositions, setRangePositions] = useState<any>();
-  //   const [isDragging, setIsDragging] = useState(false);
   const isDraggingRef = useRef(false);
-  const activeThumbRef = useRef<string>();
-  const valueRef = useRef({ ...value }).current;
   const [activeThumb, setActiveThumb] = useState<string | null>(null);
 
-  const distance = (x1, x2) => {
-    return Math.abs(x1 - x2);
+  const rangeRef = useRef<RangeClass>(
+    new RangeClass(min, max, initialValue, marks),
+  ).current;
+
+  const transformPositionToValue = (
+    left: number,
+    width: number,
+    position: number,
+  ) => {
+    // move to class
+    return Math.min(Math.max(((position - left) / width) * max, min), max);
   };
 
-  const minDistancePointKey = (x, points: { [key: string]: number }) => {
-    const keys = Object.keys(points);
-    let minDistance = distance(x, points[keys[0]]);
-    let minKey = keys[0];
-    let sameDistance = {};
-
-    for (let i = 1; i < keys.length; i++) {
-      const key = keys[i];
-      const dist = distance(x, points[key]);
-      if (dist < minDistance) {
-        minDistance = dist;
-        minKey = key;
-      } else if (dist === minDistance) {
-        sameDistance[key] = dist;
-        console.log("sameDistance", sameDistance);
-      }
-    }
-
-    if (Object.keys(sameDistance).length > 0) {
-      console.log(
-        "sameDistance values",
-        x > points.min,
-        points.min,
-        points.max,
-      );
-      minKey = x > points.min ? "max" : "min";
-    }
-
-    console.log("minDistancePointKey", minKey);
-    return minKey;
+  const transformValueToPosition = (value: number) => {
+    console.log(
+      "transformValueToPosition",
+      value,
+      min,
+      max,
+      (value / (max - min)) * 100,
+    );
+    return ((value - min) / (max - min)) * 100;
   };
 
   useEffect(() => {
@@ -79,109 +67,38 @@ export default function Range({
     const width = current.getBoundingClientRect().width;
 
     current.addEventListener("mousedown", (event) => {
-      isDraggingRef.current = true;
-      event.preventDefault();
-      const relativePosition = event.clientX - left;
-      const percentageLeft = (relativePosition / width) * 100;
+      const val = transformPositionToValue(left, width, event.clientX);
+      rangeRef.setCloserThumbActive(val);
+      rangeRef.setThumbValue(val);
+      console.log("mousedown", rangeRef.activeThumb, rangeRef.value);
+      setValue({ ...rangeRef.value });
 
-      const minKey = minDistancePointKey(percentageLeft, {
-        min: valueRef.min,
-        max: valueRef.max,
-      });
+      event.preventDefault();
       document.body.style.cursor = "grabbing";
       current.style.cursor = "grabbing";
-
-      console.log("minKey", minKey);
-      activeThumbRef.current = minKey;
-
-      const pos = Math.max(Math.min(percentageLeft, 100), 0);
-
-      if (activeThumbRef.current === "min") {
-        if (pos >= valueRef.max) {
-          console.log("returning");
-          return;
-        }
-      } else {
-        if (pos <= valueRef.min) {
-          console.log("returning");
-        }
-      }
-      console.log(event.clientX, event);
-      valueRef[activeThumbRef.current as string] = pos;
-      setValue((value) => ({
-        ...value,
-        [activeThumbRef.current as string]: pos,
-      }));
     });
 
     current.addEventListener("mousemove", (event) => {
-      console.log("mousemove", isDraggingRef.current, activeThumbRef.current);
-      const relativePosition = event.clientX - left;
-      const percentageLeft = (relativePosition / width) * 100;
-      event.preventDefault();
-      if (!isDraggingRef.current) {
-        const minKey = minDistancePointKey(percentageLeft, {
-          min: valueRef.min,
-          max: valueRef.max,
-        });
-
-        setActiveThumb(minKey as string);
-        return;
-      }
+      const val = transformPositionToValue(left, width, event.clientX);
+      const activeThumb = rangeRef.getCloserThumb(val);
+      setActiveThumb(activeThumb);
     });
 
     current.addEventListener("mouseleave", (event) => {
-      console.log("mouseleave", isDraggingRef.current);
       setActiveThumb(null);
     });
 
     document.addEventListener("mousemove", (event) => {
-      if (!isDraggingRef.current) return;
-      const relativePosition = event.clientX - left;
-      const percentageLeft = (relativePosition / width) * 100;
-
-      event.preventDefault();
-
-      const pos = Math.max(Math.min(percentageLeft, 100), 0);
-      if (activeThumbRef.current === "min") {
-        console.log("check crossing", pos, value.max, value.min);
-        if (pos >= valueRef.max) {
-          console.log("returning");
-          valueRef.min = valueRef.max;
-          return setValue((value) => ({
-            ...value,
-            min: valueRef.max,
-          }));
-        }
-      } else {
-        if (pos <= valueRef.min) {
-          console.log("returning");
-          valueRef.max = valueRef.min;
-          return setValue((value) => ({
-            ...value,
-            max: valueRef.min,
-          }));
-        }
-      }
-      console.log(event.clientX, event);
-      valueRef[activeThumbRef.current as string] = pos;
-      setValue((value) => ({
-        ...value,
-        [activeThumbRef.current as string]: pos,
-      }));
+      const val = transformPositionToValue(left, width, event.clientX);
+      rangeRef.setThumbValue(val);
+      console.log("mousedown", rangeRef.activeThumb, rangeRef.value);
+      setValue({ ...rangeRef.value });
     });
 
     document.addEventListener("mouseup", (event) => {
+      rangeRef.activeThumb = null;
       document.body.style.cursor = "auto";
       current.style.cursor = "pointer";
-
-      setValue((value) => ({
-        ...value,
-        [activeThumbRef.current as string]:
-          valueRef[activeThumbRef.current as string],
-      }));
-
-      isDraggingRef.current = false;
     });
 
     setRangePositions({ left, width });
@@ -191,18 +108,28 @@ export default function Range({
     <>
       <div className={styles.range} ref={range}>
         <RangeRail />
-        <RangeTrack left={value.min} width={value.max - value.min} />
+        <RangeTrack
+          left={transformValueToPosition(value.min)}
+          width={
+            transformValueToPosition(value.max) -
+            transformValueToPosition(value.min)
+          }
+        />
         <RangeThumb
-          left={value.min}
-          isDragging={isDraggingRef.current}
+          left={transformValueToPosition(value.min)}
           isActive={activeThumb === "min"}
         />
         <RangeThumb
-          left={value.max}
-          isDragging={isDraggingRef.current}
+          left={transformValueToPosition(value.max)}
           isActive={activeThumb === "max"}
         />
-        <RangeMark />
+        {marks.map((mark) => (
+          <RangeMark
+            key={mark}
+            left={transformValueToPosition(mark)}
+            value={mark}
+          />
+        ))}
       </div>
       <pre>{JSON.stringify({ min, max, value }, null, 2)}</pre>
       <pre>{JSON.stringify(rangePositions, null, 2)}</pre>

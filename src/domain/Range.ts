@@ -107,7 +107,7 @@ export default class Range {
     if (thumb === "max") {
       value = this._clamp(value, this._value.min, this._max);
     }
-    this._value[thumb] = value;
+    this._value[thumb] = step ? step : Math.round(value);
   }
 
   get activeThumb() {

@@ -1,3 +1,8 @@
+enum Direction {
+  UP = "up",
+  DOWN = "down",
+}
+
 export default class Range {
   private _min: number;
   private _max: number;
@@ -21,35 +26,36 @@ export default class Range {
     return Math.min(Math.max(value, min), max);
   }
 
+  private _getClampedValue(value: number, thumb: "min" | "max") {
+    let clamped = value;
+    if (thumb === "min") {
+      clamped = this._clamp(value, this._min, this._value.max);
+    }
+    if (thumb === "max") {
+      clamped = this._clamp(value, this._value.min, this._max);
+    }
+    return clamped;
+  }
+
   private _getNextStep(
     step: number,
     thumb: "min" | "max",
-    direction: "up" | "down",
+    direction: Direction,
   ) {
     const index = this._steps.indexOf(step);
     const value =
       direction === "up"
         ? this._steps[index + 1] || this._max
         : this._steps[index - 1] || this._min;
-    if (thumb === "min") {
-      return this._clamp(value, this._min, this._value.max);
-    }
-    if (thumb === "max") {
-      return this._clamp(value, this._value.min, this._max);
-    }
-    return value;
+    return this._getClampedValue(value, thumb);
   }
 
-  private _getNextPosition(thumb: "min" | "max", direction: "up" | "down") {
+  private _getNextPosition(thumb: "min" | "max", direction: Direction) {
     let value =
-      direction === "up" ? this._value[thumb] + 1 : this._value[thumb] - 1;
-    if (thumb === "min") {
-      value = this._clamp(value, this._min, this._value.max);
-    }
-    if (thumb === "max") {
-      value = this._clamp(value, this._value.min, this._max);
-    }
-    return value;
+      direction === Direction.UP
+        ? this._value[thumb] + 1
+        : this._value[thumb] - 1;
+    return this._getClampedValue(value, thumb);
   }
 
   getCloserThumb(x: number) {
@@ -73,24 +79,28 @@ export default class Range {
     return this._steps[distances.indexOf(minDistance)];
   }
 
+  private nudgedValue(thumb: "min" | "max", direction: Direction) {
+    if (!this._steps.length) {
+      this._value[thumb] = this._getNextPosition(thumb, direction)!;
+      return;
+    }
+    this._value[thumb] = this._getNextStep(
+      this.value[thumb],
+      thumb,
+      direction,
+    )!;
+  }
+
   nudgeThumbValueUp() {
     if (!this._activeThumb) return;
     const thumb = this._activeThumb;
-    if (!this._steps.length) {
-      this._value[thumb] = this._getNextPosition(thumb, "up");
-      return;
-    }
-    this._value[thumb] = this._getNextStep(this.value[thumb], thumb, "up");
+    this.nudgedValue(thumb, Direction.UP);
   }
 
   nudgeThumbValueDown() {
     if (!this._activeThumb) return;
     const thumb = this._activeThumb;
-    if (!this._steps.length) {
-      this._value[thumb] = this._getNextPosition(thumb, "down");
-      return;
-    }
-    this._value[thumb] = this._getNextStep(this.value[thumb], thumb, "down");
+    this.nudgedValue(thumb, Direction.DOWN);
   }
 
   setThumbValue(x: number) {
@@ -107,7 +117,7 @@ export default class Range {
     if (thumb === "max") {
       value = this._clamp(value, this._value.min, this._max);
     }
-    this._value[thumb] = step ? step : Math.round(value);
+    this._value[thumb] = step ? value : Math.round(value);
   }
 
   get activeThumb() {

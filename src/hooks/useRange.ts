@@ -115,7 +115,6 @@ export default function useRange(
     };
 
     for (const [key, value] of Object.entries(handlers.range)) {
-      console.log("addEventListener", key);
       current.addEventListener(key, value as EventListener);
     }
 

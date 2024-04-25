@@ -141,7 +141,7 @@ export default function useRange(
         document.removeEventListener(key, value as EventListener);
       }
     };
-  }, [getHandlers, updateValue]);
+  }, [getHandlers, updateValue, window.innerWidth]);
 
   const onInputChange = (name: Thumbs, value: number) => {
     rangeInstanceRef.activeThumb = name;

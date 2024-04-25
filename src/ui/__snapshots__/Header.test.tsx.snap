@@ -1,0 +1,46 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Header should render correctly 1`] = `
+<div>
+  <header
+    class="header"
+  >
+    <a
+      href="/"
+    >
+      <img
+        alt="Mango Logo"
+        data-nimg="1"
+        decoding="async"
+        fetchpriority="high"
+        height="50"
+        src="/mango.svg"
+        style="color: transparent;"
+        width="200"
+      />
+    </a>
+    <nav
+      class="menu"
+    >
+      <ul>
+        <li>
+          <a
+            class=""
+            href="/exercise1"
+          >
+            Exercise 1
+          </a>
+        </li>
+        <li>
+          <a
+            class=""
+            href="/exercise2"
+          >
+            Exercise 2
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </header>
+</div>
+`;

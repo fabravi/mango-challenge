@@ -1,0 +1,12 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`RangeThumb should render correctly 1`] = `
+<div>
+  <span
+    class="thumb hover"
+    role="slider-thumb"
+    style="left: 30%;"
+    tabindex="0"
+  />
+</div>
+`;

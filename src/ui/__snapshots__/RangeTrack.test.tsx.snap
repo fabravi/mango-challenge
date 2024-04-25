@@ -1,0 +1,11 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`RangeTrack should render correctly 1`] = `
+<div>
+  <span
+    class="track"
+    role="slider-track"
+    style="left: 0%; width: 100%;"
+  />
+</div>
+`;

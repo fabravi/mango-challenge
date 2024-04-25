@@ -1,0 +1,10 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`RangeMark should render correctly 1`] = `
+<div>
+  <span
+    class="mark"
+    style="left: 0%;"
+  />
+</div>
+`;

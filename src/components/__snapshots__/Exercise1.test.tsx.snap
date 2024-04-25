@@ -1,0 +1,74 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Exercise1 should render correctly 1`] = `
+<div>
+  <div>
+    <div
+      class="container"
+    >
+      <fieldset
+        class="fieldset"
+      >
+        <label
+          class=""
+          for="min"
+        >
+          €
+        </label>
+        <input
+          class="input "
+          id="min"
+          max="100"
+          min="0"
+          name="min"
+          type="number"
+          value="0.00"
+        />
+      </fieldset>
+      <div
+        class="range"
+      >
+        <span
+          class="rail"
+        />
+        <span
+          class="track"
+          role="slider-track"
+          style="left: 0%; width: 100%;"
+        />
+        <span
+          class="thumb "
+          role="slider-thumb"
+          style="left: 0%;"
+          tabindex="0"
+        />
+        <span
+          class="thumb "
+          role="slider-thumb"
+          style="left: 100%;"
+          tabindex="0"
+        />
+      </div>
+      <fieldset
+        class="fieldset"
+      >
+        <label
+          class=""
+          for="max"
+        >
+          €
+        </label>
+        <input
+          class="input "
+          id="max"
+          max="100"
+          min="0"
+          name="max"
+          type="number"
+          value="100.00"
+        />
+      </fieldset>
+    </div>
+  </div>
+</div>
+`;

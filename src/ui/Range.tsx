@@ -9,10 +9,8 @@ import RangeInput from "@/ui/RangeInput";
 import styles from "./range.module.scss";
 import useRange from "@/hooks/useRange";
 
-interface Value {
-  min: number;
-  max: number;
-}
+import { Thumbs } from "@/types/Thumbs";
+import { Value } from "@/types/Value";
 
 interface RangeProps {
   min: number;
@@ -49,7 +47,7 @@ export default function Range({
         min={min}
         max={value.max}
         value={value.min}
-        onChange={(min: number) => onInputChange("min", min)}
+        onChange={(min: number) => onInputChange(Thumbs.MIN, min)}
         readOnly={readOnly}
       />
       <div className={styles.range} ref={rangeRef}>
@@ -58,12 +56,12 @@ export default function Range({
         <RangeThumb
           left={positionMin}
           isActive={activeThumb === "min"}
-          setActive={(state) => setActive(state ? "min" : null)}
+          setActive={(state) => setActive(state ? Thumbs.MIN : null)}
         />
         <RangeThumb
           left={positionMax}
           isActive={activeThumb === "max"}
-          setActive={(state) => setActive(state ? "max" : null)}
+          setActive={(state) => setActive(state ? Thumbs.MAX : null)}
         />
         {marks.map((mark) => (
           <RangeMark key={mark} left={getPosition(mark)} />
@@ -74,7 +72,7 @@ export default function Range({
         min={value.min}
         max={max}
         value={value.max}
-        onChange={(max: number) => onInputChange("max", max)}
+        onChange={(max: number) => onInputChange(Thumbs.MAX, max)}
         readOnly={readOnly}
       />
     </div>

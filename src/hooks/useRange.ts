@@ -60,7 +60,6 @@ export default function useRange(
       width: number,
       current: HTMLDivElement,
       updateValue: (value: Value) => void,
-      switchTransitionStyles: (action: "add" | "remove") => void = () => {},
     ) => {
       return {
         range: {
@@ -112,13 +111,7 @@ export default function useRange(
         },
       };
     },
-    [
-      rangeInstanceRef,
-      setActiveThumb,
-      updateValue,
-      transformPositionToValue,
-      switchTransitionStyles,
-    ],
+    [rangeInstanceRef, setActiveThumb, updateValue, transformPositionToValue],
   );
 
   useEffect(() => {
@@ -154,6 +147,7 @@ export default function useRange(
     rangeInstanceRef.activeThumb = name;
     rangeInstanceRef.setThumbValue(value);
     updateValue({ ...rangeInstanceRef.value });
+    rangeInstanceRef.activeThumb = null;
   };
 
   const setActive = (activeThumb: Thumbs | null) => {

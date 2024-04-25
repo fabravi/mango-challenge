@@ -59,7 +59,6 @@ describe("useRange Hook", () => {
           400,
           rangeDiv,
           result.current.updateValue,
-          result.current.switchTransitionStyles,
         ).range;
         mousedown({
           clientX: 100,
@@ -75,8 +74,6 @@ describe("useRange Hook", () => {
         min: 25,
         max: 100,
       });
-
-      expect(result.current.switchTransitionStyles).toHaveBeenCalledWith("add");
     });
 
     test("should handle mousemove event", () => {

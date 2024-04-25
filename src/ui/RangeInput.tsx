@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import styles from "./rangeinput.module.scss";
 
 interface RangeInputProps {
@@ -20,39 +20,42 @@ export default function RangeInput({
 }: RangeInputProps) {
   const [value, setValue] = useState(valueProp?.toFixed(2));
   const [error, setError] = useState(false);
+  const timeout = useRef<ReturnType<typeof setTimeout>>();
 
-  const changeValue = useCallback(
-    (value: number) => {
-      if (value < min || value > max) {
+  useEffect(() => {
+    setValue(valueProp?.toFixed(2));
+  }, [valueProp]);
+
+  const isValid = useCallback(
+    (newValue: string) => {
+      const num = parseFloat(newValue);
+      return !isNaN(num) && num >= min && num <= max;
+    },
+    [min, max],
+  );
+
+  const updateValue = (newValue: string) => {
+    if (timeout.current) clearTimeout(timeout.current);
+    setError(false);
+    setValue(newValue);
+
+    timeout.current = setTimeout(() => {
+      console.log("sliderChangeHandler", value);
+      const num = parseFloat(newValue);
+      if (!isValid(newValue)) {
         setError(true);
         return;
       }
+      onChange(num);
+    }, 300);
+  };
 
+  const onBlur = () => {
+    if (value === "") {
       setValue(valueProp?.toFixed(2));
-      setError(false);
-      onChange(value);
-    },
-    [valueProp, min, max, onChange],
-  );
-
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Enter") {
-        changeValue(Number(value));
-      }
-    };
-
-    document.addEventListener("keydown", handleKeyDown);
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [value, changeValue]);
-
-  useEffect(() => {
-    setError(false);
-    let value = valueProp?.toFixed(2);
-    setValue(value);
-  }, [valueProp]);
+      setError(!isValid(valueProp?.toFixed(2)));
+    }
+  };
 
   return (
     <fieldset className={styles.fieldset}>
@@ -67,17 +70,12 @@ export default function RangeInput({
         value={value}
         min={min}
         max={max}
-        onChange={(e) => {
-          setValue(e.target.value);
+        onChange={(event) => {
+          updateValue(event.target.value);
         }}
+        onFocus={(event) => event.target.select()}
+        onBlur={() => onBlur()}
         readOnly={readOnly}
-        onBlur={(e) => {
-          changeValue(Number(e.target.value));
-        }}
-        onFocus={(e) => {
-          if (readOnly) return;
-          e.target.select();
-        }}
       />
     </fieldset>
   );

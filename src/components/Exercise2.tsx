@@ -1,5 +1,5 @@
 "use client";
-import Range from "@/ui/Range";
+import Range from "@/ui/range/Range";
 
 import { useState } from "react";
 

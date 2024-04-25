@@ -1,14 +1,11 @@
-enum Direction {
-  UP = "up",
-  DOWN = "down",
-}
-
+import { Direction } from "@/types/Direction";
+import { Thumbs } from "@/types/Thumbs";
 export default class Range {
   private _min: number;
   private _max: number;
   private _value: { min: number; max: number };
   private _steps: number[];
-  private _activeThumb: "min" | "max" | null = null;
+  private _activeThumb: Thumbs | null = null;
 
   constructor(
     min: number,
@@ -26,22 +23,18 @@ export default class Range {
     return Math.min(Math.max(value, min), max);
   }
 
-  private _getClampedValue(value: number, thumb: "min" | "max") {
+  private _getClampedValue(value: number, thumb: Thumbs) {
     let clamped = value;
-    if (thumb === "min") {
+    if (thumb === Thumbs.MIN) {
       clamped = this._clamp(value, this._min, this._value.max);
     }
-    if (thumb === "max") {
+    if (thumb === Thumbs.MAX) {
       clamped = this._clamp(value, this._value.min, this._max);
     }
     return clamped;
   }
 
-  private _getNextStep(
-    step: number,
-    thumb: "min" | "max",
-    direction: Direction,
-  ) {
+  private _getNextStep(step: number, thumb: Thumbs, direction: Direction) {
     const index = this._steps.indexOf(step);
     const value =
       direction === "up"
@@ -50,7 +43,7 @@ export default class Range {
     return this._getClampedValue(value, thumb);
   }
 
-  private _getNextPosition(thumb: "min" | "max", direction: Direction) {
+  private _getNextPosition(thumb: Thumbs, direction: Direction) {
     let value =
       direction === Direction.UP
         ? this._value[thumb] + 1
@@ -63,9 +56,9 @@ export default class Range {
     const distanceToMin = Math.abs(x - min);
     const distanceToMax = Math.abs(x - max);
     if (distanceToMin === distanceToMax) {
-      return x < min ? "min" : "max";
+      return x < min ? Thumbs.MIN : Thumbs.MAX;
     }
-    return distanceToMin < distanceToMax ? "min" : "max";
+    return distanceToMin < distanceToMax ? Thumbs.MIN : Thumbs.MAX;
   }
 
   setCloserThumbActive(x: number) {
@@ -79,7 +72,7 @@ export default class Range {
     return this._steps[distances.indexOf(minDistance)];
   }
 
-  private nudgedValue(thumb: "min" | "max", direction: Direction) {
+  private nudgedValue(thumb: Thumbs, direction: Direction) {
     if (!this._steps.length) {
       this._value[thumb] = this._getNextPosition(thumb, direction)!;
       return;
@@ -111,10 +104,10 @@ export default class Range {
       step = this.getCloserStep(x);
     }
     let value = step || x;
-    if (thumb === "min") {
+    if (thumb === Thumbs.MIN) {
       value = this._clamp(value, this._min, this._value.max);
     }
-    if (thumb === "max") {
+    if (thumb === Thumbs.MAX) {
       value = this._clamp(value, this._value.min, this._max);
     }
     this._value[thumb] = step ? value : Math.round(value);
@@ -124,7 +117,7 @@ export default class Range {
     return this._activeThumb;
   }
 
-  set activeThumb(thumb: "min" | "max" | null) {
+  set activeThumb(thumb: Thumbs | null) {
     this._activeThumb = thumb;
   }
 

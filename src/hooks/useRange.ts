@@ -1,6 +1,7 @@
 import { Value } from "@/types/Value";
 import { useEffect, useRef, useState } from "react";
 import RangeClass from "@/domain/Range";
+import { Thumbs } from "@/types/Thumbs";
 
 export default function useRange(
   initialValue: Value,
@@ -133,13 +134,13 @@ export default function useRange(
     };
   }, []);
 
-  const onInputChange = (name: "min" | "max", value: number) => {
+  const onInputChange = (name: Thumbs, value: number) => {
     rangeInstanceRef.activeThumb = name;
     rangeInstanceRef.setThumbValue(value);
     updateValue({ ...rangeInstanceRef.value });
   };
 
-  const setActive = (activeThumb: "min" | "max" | null) => {
+  const setActive = (activeThumb: Thumbs | null) => {
     rangeInstanceRef.activeThumb = activeThumb;
   };
 

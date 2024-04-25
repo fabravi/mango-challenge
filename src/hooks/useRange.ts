@@ -13,6 +13,17 @@ export default function useRange(
   const rangeRef = useRef<HTMLDivElement>(null);
   const [value, setValue] = useState<Value>(initialValue);
   const [activeThumb, setActiveThumb] = useState<string | null>(null);
+  const [windowWidth, setWindowWidth] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const rangeInstanceRef = useRef<RangeClass>(
     new RangeClass(min, max, initialValue, marks),
@@ -141,7 +152,7 @@ export default function useRange(
         document.removeEventListener(key, value as EventListener);
       }
     };
-  }, [getHandlers, updateValue, window.innerWidth]);
+  }, [getHandlers, updateValue, windowWidth]);
 
   const onInputChange = (name: Thumbs, value: number) => {
     rangeInstanceRef.activeThumb = name;

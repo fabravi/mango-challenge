@@ -1,10 +1,9 @@
 "use client";
-
-import RangeMark from "@/ui/RangeMark";
-import RangeRail from "@/ui/RangeRail";
-import RangeThumb from "@/ui/RangeThumb";
-import RangeTrack from "@/ui/RangeTrack";
-import RangeInput from "@/ui/RangeInput";
+import RangeMark from "@/ui/range/RangeMark";
+import RangeRail from "@/ui/range/RangeRail";
+import RangeThumb from "@/ui/range/RangeThumb";
+import RangeTrack from "@/ui/range/RangeTrack";
+import RangeInput from "@/ui/range/RangeInput";
 
 import styles from "./range.module.scss";
 import useRange from "@/hooks/useRange";

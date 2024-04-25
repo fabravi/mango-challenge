@@ -11,7 +11,6 @@ import RangeTrack from "@/ui/RangeTrack";
 import RangeInput from "@/ui/RangeInput";
 
 import styles from "./range.module.scss";
-import { flushSync } from "react-dom";
 
 interface Value {
   min: number;
@@ -23,7 +22,7 @@ interface RangeProps {
   max: number;
   value: Value;
   marks?: number[];
-  onChange?: (value: Value) => void;
+  onChange: (value: Value) => void;
 }
 
 export default function Range({
@@ -46,18 +45,10 @@ export default function Range({
     width: number,
     position: number,
   ) => {
-    // move to class
-    return Math.min(Math.max(((position - left) / width) * max, min), max);
+    return ((position - left) / width) * max;
   };
 
   const transformValueToPosition = (value: number) => {
-    console.log(
-      "transformValueToPosition",
-      value,
-      min,
-      max,
-      (value / (max - min)) * 100,
-    );
     return ((value - min) / (max - min)) * 100;
   };
 
@@ -83,6 +74,11 @@ export default function Range({
       .forEach((item) => item?.classList.remove("transitions-active"));
   };
 
+  const updateValue = (value: Value) => {
+    setValue(value);
+    onChange?.(value);
+  };
+
   useEffect(() => {
     if (!range.current) return;
 
@@ -97,7 +93,7 @@ export default function Range({
           const val = transformPositionToValue(left, width, event.clientX);
           rangeRef.setCloserThumbActive(val);
           rangeRef.setThumbValue(val);
-          setValue({ ...rangeRef.value });
+          updateValue({ ...rangeRef.value });
           addTransitionStyles();
           event.preventDefault();
           document.body.style.cursor = "grabbing";
@@ -115,10 +111,11 @@ export default function Range({
       },
       document: {
         mousemove: (event: MouseEvent) => {
+          if (document.activeElement?.role === "slider-thumb") return;
           const val = transformPositionToValue(left, width, event.clientX);
           rangeRef.setThumbValue(val);
           if (rangeRef.activeThumb === null) return;
-          setValue({ ...rangeRef.value });
+          updateValue({ ...rangeRef.value });
         },
         mouseup: (event: MouseEvent) => {
           rangeRef.activeThumb = null;
@@ -130,14 +127,12 @@ export default function Range({
           console.log("keydown", rangeRef.value, rangeRef.activeThumb);
           if (activeThumb === null) return;
           if (event.key === "ArrowUp" || event.key === "ArrowRight") {
-            console.log("setThumbValue", rangeRef.value);
-            rangeRef.setThumbValue(rangeRef.value[activeThumb] + 1);
-            setValue({ ...rangeRef.value });
+            rangeRef.nudgeThumbValueUp();
+            updateValue({ ...rangeRef.value });
           }
           if (event.key === "ArrowDown" || event.key === "ArrowLeft") {
-            console.log("setThumbValue", rangeRef.value);
-            rangeRef.setThumbValue(rangeRef.value[activeThumb] - 1);
-            setValue({ ...rangeRef.value });
+            rangeRef.nudgeThumbValueDown();
+            updateValue({ ...rangeRef.value });
           }
         },
       },
@@ -163,11 +158,19 @@ export default function Range({
     };
   }, []);
 
+  const onInputChange = (name: "min" | "max", value: number) => {
+    rangeRef.activeThumb = name;
+    rangeRef.setThumbValue(value);
+    updateValue({ ...rangeRef.value });
+  };
+
   const setActive = (activeThumb: "min" | "max" | null) => {
-    rangeRef.setActiveThumb(activeThumb);
+    rangeRef.activeThumb = activeThumb;
   };
 
   const readOnly = marks.length > 0;
+  const positionMin = transformValueToPosition(value.min);
+  const positionMax = transformValueToPosition(value.max);
 
   return (
     <div className={styles.container}>
@@ -176,34 +179,24 @@ export default function Range({
         min={min}
         max={value.max}
         value={value.min}
-        onChange={(min: number) => setValue((prev) => ({ ...prev, min }))}
+        onChange={(min: number) => onInputChange("min", min)}
         readOnly={readOnly}
       />
       <div className={styles.range} ref={range}>
         <RangeRail />
-        <RangeTrack
-          left={transformValueToPosition(value.min)}
-          width={
-            transformValueToPosition(value.max) -
-            transformValueToPosition(value.min)
-          }
-        />
+        <RangeTrack left={positionMin} width={positionMax - positionMin} />
         <RangeThumb
-          left={transformValueToPosition(value.min)}
+          left={positionMin}
           isActive={activeThumb === "min"}
           setActive={(state) => setActive(state ? "min" : null)}
         />
         <RangeThumb
-          left={transformValueToPosition(value.max)}
+          left={positionMax}
           isActive={activeThumb === "max"}
           setActive={(state) => setActive(state ? "max" : null)}
         />
         {marks.map((mark) => (
-          <RangeMark
-            key={mark}
-            left={transformValueToPosition(mark)}
-            value={mark}
-          />
+          <RangeMark key={mark} left={transformValueToPosition(mark)} />
         ))}
       </div>
       <RangeInput
@@ -211,7 +204,7 @@ export default function Range({
         min={value.min}
         max={max}
         value={value.max}
-        onChange={(max: number) => setValue((prev) => ({ ...prev, max }))}
+        onChange={(max: number) => onInputChange("max", max)}
         readOnly={readOnly}
       />
     </div>

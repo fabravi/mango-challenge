@@ -1,5 +1,14 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import styles from "./rangeinput.module.scss";
+
+interface RangeInputProps {
+  name: string;
+  value: number;
+  min: number;
+  max: number;
+  onChange: (value: number) => void;
+  readOnly?: boolean;
+}
 
 export default function RangeInput({
   name,
@@ -8,16 +17,41 @@ export default function RangeInput({
   max,
   onChange,
   readOnly,
-}: any) {
+}: RangeInputProps) {
   const [value, setValue] = useState(valueProp?.toFixed(2));
   const [error, setError] = useState(false);
 
-  useEffect(() => {
-    if (valueProp === value) return;
-    setError(false);
-    valueProp = valueProp?.toFixed(2);
+  const changeValue = useCallback(
+    (value: number) => {
+      if (value < min || value > max) {
+        setError(true);
+        return;
+      }
 
-    setValue(valueProp);
+      setValue(valueProp?.toFixed(2));
+      setError(false);
+      onChange(value);
+    },
+    [valueProp, min, max, onChange],
+  );
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Enter") {
+        changeValue(Number(value));
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [value, changeValue]);
+
+  useEffect(() => {
+    setError(false);
+    let value = valueProp?.toFixed(2);
+    setValue(value);
   }, [valueProp]);
 
   return (
@@ -38,13 +72,7 @@ export default function RangeInput({
         }}
         readOnly={readOnly}
         onBlur={(e) => {
-          const value = Number(e.target.value);
-          if (value < min || value > max) {
-            setError(true);
-            return;
-          }
-          onChange(Number(e.target.value));
-          setError(false);
+          changeValue(Number(e.target.value));
         }}
         onFocus={(e) => {
           if (readOnly) return;

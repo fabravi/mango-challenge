@@ -15,13 +15,24 @@ export default function RangeThumb({
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    ref.current?.addEventListener("focus", (event) => {
-      setActive(true);
-    });
+    const { current } = ref;
+    if (!current) return;
 
-    ref.current?.addEventListener("blur", () => {
+    const handleFocus = () => {
+      setActive(true);
+    };
+
+    const handleBlur = () => {
       setActive(false);
-    });
+    };
+
+    current.addEventListener("focus", handleFocus);
+    current.addEventListener("blur", handleBlur);
+
+    return () => {
+      current.removeEventListener("focus", handleFocus);
+      current.removeEventListener("blur", handleBlur);
+    };
   }, [setActive]);
 
   return (

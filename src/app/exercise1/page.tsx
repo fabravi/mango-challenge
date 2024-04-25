@@ -1,17 +1,15 @@
+import Exercise1 from "@/components/Exercise1";
 import getRangeData from "@/lib/getRangeData";
-import Range from "@/ui/Range";
+import { NormalRange } from "@/types/NormalRange";
 
 export const dynamic = "force-dynamic";
 
 export default async function Exercise1Page() {
-  const data = await getRangeData("/exercise-1");
+  const data = await getRangeData<NormalRange>("/exercise-1");
 
   return (
     <>
-      <div style={{ width: "100%" }}>
-        <Range min={data.min} max={data.max} value={data} />
-      </div>
-      <pre>{JSON.stringify(data, null, 2)}</pre>
+      <Exercise1 min={data.min} max={data.max} />
     </>
   );
 }

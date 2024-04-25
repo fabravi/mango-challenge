@@ -1,24 +1,15 @@
+import Exercise2 from "@/components/Exercise2";
 import getRangeData from "@/lib/getRangeData";
-import Range from "@/ui/Range";
+import { FixedRange } from "@/types/FixedRange";
 
 export const dynamic = "force-dynamic";
 
 export default async function Exercise2Page() {
-  const data = await getRangeData("/exercise-2");
+  const data = await getRangeData<FixedRange>("/exercise-2");
 
   return (
     <>
-      <div style={{ width: "100%" }}>
-        <Range
-          min={data.rangeValues.at(0)}
-          max={data.rangeValues.at(-1)}
-          marks={data.rangeValues}
-          value={{
-            min: data.rangeValues.at(0),
-            max: data.rangeValues.at(-1),
-          }}
-        />
-      </div>
+      <Exercise2 marks={data.rangeValues} />
     </>
   );
 }

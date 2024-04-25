@@ -1,0 +1,9 @@
+.rail {
+  position: absolute;
+  display: block;
+  height: $rail-height;
+  background-color: $rail-color;
+  border-radius: $rail-height / 2;
+  top: calc(50% - $rail-height / 2);
+  width: 100%;
+}

@@ -1,0 +1,12 @@
+$top: $thumb-size-hover / 2 - ($mark-size / 2);
+
+.mark {
+  position: absolute;
+  height: $mark-size;
+  width: $mark-size;
+  background-color: $mark-color;
+  border-radius: 50%;
+  cursor: pointer;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}

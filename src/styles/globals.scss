@@ -23,3 +23,9 @@ a {
   width: $max-width;
   margin: 0 auto;
 }
+
+.transitions-active {
+  transition:
+    width 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+    left 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}

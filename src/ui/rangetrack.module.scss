@@ -1,0 +1,9 @@
+.track {
+  position: absolute;
+  background-color: $track-color;
+  height: $rail-height;
+  z-index: 1;
+  left: 20%;
+  right: 20%;
+  top: calc(50% - $rail-height / 2);
+}

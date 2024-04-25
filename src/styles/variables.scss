@@ -4,3 +4,19 @@ $font-mono: ui-monospace, Menlo, Monaco, "Cascadia Mono", "Segoe UI Mono",
   "Fira Mono", "Droid Sans Mono", "Courier New", monospace;
 
 $foreground-rgb: 20 20 35;
+$muted-rgb: 200 200 210;
+
+// Range variables
+$root-height: 30px;
+
+$rail-height: 2px;
+$rail-color: rgb($muted-rgb);
+
+$mark-size: 5px;
+$mark-color: rgb($foreground-rgb);
+
+$thumb-size: 10px;
+$thumb-size-hover: 12px;
+$thumb-color: rgb($foreground-rgb);
+
+$track-color: rgb($foreground-rgb);

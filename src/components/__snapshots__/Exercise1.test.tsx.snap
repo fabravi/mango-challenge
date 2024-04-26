@@ -5,6 +5,7 @@ exports[`Exercise1 should render correctly 1`] = `
   <div>
     <div
       class="container"
+      role="slider"
     >
       <fieldset
         class="fieldset"

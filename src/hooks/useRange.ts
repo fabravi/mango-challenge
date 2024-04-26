@@ -75,6 +75,7 @@ export default function useRange(
       return {
         range: {
           mousedown: (event: MouseEvent) => {
+            (document.activeElement as HTMLElement | null)?.blur();
             const val = transformPositionToValue(left, width, event.clientX);
             rangeInstanceRef.setCloserThumbActive(val);
             rangeInstanceRef.setThumbValue(val);
@@ -104,6 +105,7 @@ export default function useRange(
           },
           mouseup: (event: MouseEvent) => {
             rangeInstanceRef.activeThumb = null;
+            setActiveThumb(null);
             document.body.style.cursor = "auto";
             current.style.cursor = "pointer";
           },

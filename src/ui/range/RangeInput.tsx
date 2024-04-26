@@ -57,6 +57,15 @@ export default function RangeInput({
     }
   };
 
+  const readOnlyProps = useMemo(() => {
+    return readOnly
+      ? {
+          readOnly: true,
+          tabIndex: -1,
+        }
+      : {};
+  }, [readOnly]);
+
   return (
     <fieldset className={styles.fieldset}>
       <label htmlFor={name} className={error ? styles.error : ""}>
@@ -75,7 +84,7 @@ export default function RangeInput({
         }}
         onFocus={(event) => event.target.select()}
         onBlur={() => onBlur()}
-        readOnly={readOnly}
+        {...readOnlyProps}
       />
     </fieldset>
   );

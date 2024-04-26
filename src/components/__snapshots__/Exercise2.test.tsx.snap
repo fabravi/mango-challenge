@@ -22,6 +22,7 @@ exports[`Exercise2 should render correctly 1`] = `
           min="10"
           name="min"
           readonly=""
+          tabindex="-1"
           type="number"
           value="10.00"
         />
@@ -86,6 +87,7 @@ exports[`Exercise2 should render correctly 1`] = `
           min="10"
           name="max"
           readonly=""
+          tabindex="-1"
           type="number"
           value="50.00"
         />

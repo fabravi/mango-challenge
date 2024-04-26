@@ -28,4 +28,8 @@ $matrix-origin: - strip-units($thumb-size) / 2;
     );
     cursor: grab;
   }
+
+  &:focus {
+    outline: 5px solid rgba($thumb-color, 0.2);
+  }
 }

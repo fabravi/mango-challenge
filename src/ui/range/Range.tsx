@@ -40,7 +40,7 @@ export default function Range({
   const positionMax = getPosition(value.max);
 
   return (
-    <div className={styles.container}>
+    <div className={styles.container} role="slider">
       <RangeInput
         name="min"
         min={min}

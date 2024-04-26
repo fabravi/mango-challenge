@@ -40,7 +40,6 @@ export default function RangeInput({
     setValue(newValue);
 
     timeout.current = setTimeout(() => {
-      console.log("sliderChangeHandler", value);
       const num = parseFloat(newValue);
       if (!isValid(newValue)) {
         setError(true);
@@ -73,8 +72,7 @@ export default function RangeInput({
       </label>
       <input
         type="number"
-        id={name}
-        name={name}
+        data-testid={name}
         className={`${styles.input} ${error ? styles.error : ""}`}
         value={value}
         min={min}

@@ -17,10 +17,9 @@ exports[`Exercise2 should render correctly 1`] = `
         </label>
         <input
           class="input "
-          id="min"
+          data-testid="min"
           max="50"
           min="10"
-          name="min"
           readonly=""
           tabindex="-1"
           type="number"
@@ -82,10 +81,9 @@ exports[`Exercise2 should render correctly 1`] = `
         </label>
         <input
           class="input "
-          id="max"
+          data-testid="max"
           max="50"
           min="10"
-          name="max"
           readonly=""
           tabindex="-1"
           type="number"

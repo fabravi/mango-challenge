@@ -73,6 +73,7 @@ export default function RangeInput({
       <input
         type="number"
         id={name}
+        data-testid={name}
         className={`${styles.input} ${error ? styles.error : ""}`}
         value={value}
         min={min}

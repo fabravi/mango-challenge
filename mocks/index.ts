@@ -3,8 +3,6 @@ import fs from "fs";
 import path from "path";
 import cors from "cors";
 
-const __dirname = import.meta.dirname;
-
 const app = express();
 const port = 3000;
 

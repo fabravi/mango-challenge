@@ -65,6 +65,16 @@ To start up the jest watcher
 npm run test:watch
 ```
 
+### E2E tests
+
+- Run the mock server
+- Run the production build
+- Start the app
+
+```bash
+npm run e2e
+```
+
 ## Production build
 
 Create the production build

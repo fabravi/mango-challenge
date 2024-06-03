@@ -40,7 +40,6 @@ export default function RangeInput({
     setValue(newValue);
 
     timeout.current = setTimeout(() => {
-      console.log("sliderChangeHandler", value);
       const num = parseFloat(newValue);
       if (!isValid(newValue)) {
         setError(true);
@@ -57,6 +56,15 @@ export default function RangeInput({
     }
   };
 
+  const readOnlyProps = useMemo(() => {
+    return readOnly
+      ? {
+          readOnly: true,
+          tabIndex: -1,
+        }
+      : {};
+  }, [readOnly]);
+
   return (
     <fieldset className={styles.fieldset}>
       <label htmlFor={name} className={error ? styles.error : ""}>
@@ -65,7 +73,7 @@ export default function RangeInput({
       <input
         type="number"
         id={name}
-        name={name}
+        data-testid={name}
         className={`${styles.input} ${error ? styles.error : ""}`}
         value={value}
         min={min}
@@ -75,7 +83,7 @@ export default function RangeInput({
         }}
         onFocus={(event) => event.target.select()}
         onBlur={() => onBlur()}
-        readOnly={readOnly}
+        {...readOnlyProps}
       />
     </fieldset>
   );

@@ -5,6 +5,7 @@ exports[`Exercise2 should render correctly 1`] = `
   <div>
     <div
       class="container"
+      role="slider"
     >
       <fieldset
         class="fieldset"
@@ -17,11 +18,12 @@ exports[`Exercise2 should render correctly 1`] = `
         </label>
         <input
           class="input "
+          data-testid="min"
           id="min"
           max="50"
           min="10"
-          name="min"
           readonly=""
+          tabindex="-1"
           type="number"
           value="10.00"
         />
@@ -81,11 +83,12 @@ exports[`Exercise2 should render correctly 1`] = `
         </label>
         <input
           class="input "
+          data-testid="max"
           id="max"
           max="50"
           min="10"
-          name="max"
           readonly=""
+          tabindex="-1"
           type="number"
           value="50.00"
         />
